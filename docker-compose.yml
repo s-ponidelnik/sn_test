@@ -1,0 +1,46 @@
+version: '3.7'
+services:
+    db:
+        container_name: sn_test_db
+        image: mysql
+        command: ["--default-authentication-plugin=mysql_native_password"]
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: sn_test_db
+            MYSQL_USER: sn_test_user
+            MYSQL_PASSWORD: sn_test_pass
+        networks:
+            - db
+    php:
+        container_name: sn_test_php-fpm
+        build: ./php-fpm
+        ports:
+            - "9000:9001"
+        volumes:
+            - ./backend:/var/www/backend:cached
+            - ./frontend:/var/www/frontend:cached
+            - ./logs/backend:/var/www/backend/var/log:cached
+            - ./logs/frontend:/var/www/frontend/var/log:cached
+        depends_on:
+            - db
+        networks:
+            - db
+            - php
+    nginx:
+        container_name: sn_test_nginx
+        build: ./nginx
+        ports:
+            - "80:80"
+        depends_on:
+            - php
+        networks:
+            - php
+        volumes:
+            - ./logs/nginx:/var/log/nginx:cached
+            - ./backend:/var/www/backend:cached
+            - ./frontend:/var/www/frontend:cached
+networks:
+    db:
+    php:

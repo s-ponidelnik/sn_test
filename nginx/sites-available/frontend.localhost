@@ -1,0 +1,16 @@
+server {
+   listen 80;
+   listen [::]:80;
+
+   root /var/www/frontend;
+   index index.html index.htm;
+
+   server_name frontend.localhost;
+
+   location / {
+       try_files $uri $uri/ =404;
+   }
+
+   error_log /var/log/nginx/backend_error.log;
+   access_log /var/log/nginx/backend_access.log;
+}
