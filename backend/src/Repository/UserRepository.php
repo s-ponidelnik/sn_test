@@ -19,7 +19,16 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function findByIdAsArray($id)
+    public function findAllHiddenAsArray(bool $showHidden): array
+    {
+        $result = $this->createQueryBuilder('u');
+        if (!$showHidden) {
+            $result->where('u.is_hide = :hide')->setParameter('hide', false);
+        }
+        return $result->getQuery()->getArrayResult();
+    }
+
+    public function findByIdAsArray(int $id): array
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.id = :id')
@@ -29,7 +38,7 @@ class UserRepository extends ServiceEntityRepository
             ->getArrayResult()[0];
     }
 
-    public function findHiddenByLikeUsername(string $value, bool $showHidden)
+    public function findHiddenByLikeUsername(string $value, bool $showHidden): array
     {
         $qb = $this->createQueryBuilder('u');
         $result = $qb->where(
